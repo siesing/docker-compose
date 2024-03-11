@@ -1,0 +1,55 @@
+version: '3.9'
+
+networks:
+  traefik-proxy:
+    external: true
+  seafile-net:
+
+volumes:
+  seafile-data:
+    name: seafile-data
+  seafile-db:
+    name: seafile-db
+
+services:
+  seafile:
+    image: seafileltd/seafile-mc:latest
+    container_name: seafile
+    volumes:
+      - seafile-data:/shared
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_ROOT_PASSWD=${DB_ROOT_PASSWD}
+      - TIME_ZONE=${TIMEZONE}
+      - SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}
+      - SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}
+      - SEAFILE_SERVER_LETSENCRYPT=${SEAFILE_SERVER_LETSENCRYPT}
+      - SEAFILE_SERVER_HOSTNAME=${SEAFILE_SERVER_HOSTNAME}
+      - FORCE_HTTPS_IN_CONF=${FORCE_HTTPS_IN_CONF}
+    depends_on:
+      - db
+      - memcached
+    networks:
+      - traefik-proxy
+      - seafile-net
+    labels:
+      - traefik.enable=true
+
+  db:
+    image: mariadb:10.11
+    container_name: seafile-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_LOG_CONSOLE=${MYSQL_LOG_CONSOLE}
+      - MARIADB_AUTO_UPGRADE=1
+    volumes:
+      - seafile-db:/var/lib/mysql
+    networks:
+      - seafile-net
+
+  memcached:
+    image: memcached:1.6.18
+    container_name: seafile-memcached
+    entrypoint: memcached -m 256
+    networks:
+      - seafile-net
