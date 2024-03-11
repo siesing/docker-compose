@@ -1,0 +1,81 @@
+version: '3.9'
+
+volumes:
+  nextcloud-data:
+    name: nextcloud-data
+  nextcloud-config:
+    name: nextcloud-config
+  nextcloud-db:
+    name: nextcloud-db
+  nextcloud-redis:
+    name: nextcloud-redis
+
+networks:
+  traefik-proxy:
+    external: true
+  nc-backend:
+    name: nc-backend
+    driver: bridge
+
+services:
+  nextcloud-app:
+    image: 'nextcloud:latest'
+    container_name: nextcloud
+    depends_on:
+      - "nextcloud-db"
+      - "nextcloud-redis"
+    restart: unless-stopped
+    volumes:
+      - 'nextcloud-data:/var/www/html/data'
+      - 'nextcloud-config:/var/www/html/config'
+    environment:
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - NEXTCLOUD_INIT_HTACCESS=${NEXTCLOUD_INIT_HTACCESS}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS}
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES}
+      - OVERWRITEPROTOCOL=${OVERWRITEPROTOCOL}
+      - OVERWRITECLIURL=${OVERWRITEPROTOCOL}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - REDIS_HOST=${REDIS_HOST}
+      # Keep these variables below if you wish to be able to send emails.
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_AUTHTYPE=${SMTP_AUTHTYPE}
+      - SMTP_NAME=${SMTP_NAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_DOMAIN=${MAIL_DOMAIN}
+    networks:
+      - traefik-proxy
+      - nc-backend
+    labels:
+      - traefik.enable=true
+
+  nextcloud-db:
+    image: 'tobi312/rpi-mariadb:10.5-alpine'
+    container_name: nextcloud-db
+    restart: unless-stopped
+    command: '--transaction-isolation=READ-COMMITTED --binlog-format=ROW'
+    volumes:
+      - 'nextcloud-db:/var/lib/mysql'
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+    networks:
+      - nc-backend
+
+  nextcloud-redis:
+    image: 'redis:alpine'
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    volumes:
+      - nextcloud-redis:/data
+    networks:
+      - nc-backend

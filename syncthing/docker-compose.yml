@@ -1,0 +1,29 @@
+version: '3.9'
+
+networks:
+  traefik-proxy:
+    name: traefik-proxy
+    external: true
+
+services:
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    hostname: Syncthing
+    ports:
+      - 8384:8384
+      - 22000:22000/tcp
+      - 22000:22000/udp
+      - 21027:21027/udp
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - /var/syncthing/config:/config
+      - /var/syncthing/sync:/data1
+    networks:
+      - traefik-proxy
+    labels:
+      - traefik.enable=true

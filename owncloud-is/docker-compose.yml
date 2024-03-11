@@ -1,0 +1,40 @@
+version: "3.9"
+
+volumes:
+  ocis-data:
+    name: ocis-data
+  ocis-config:
+    name: ocis-config
+
+networks:
+  traefik-proxy:
+    external: true
+
+services:
+  ocis:
+    image: owncloud/ocis:${OCIS_DOCKER_TAG}
+    container_name: ocis
+    restart: unless-stopped
+    volumes:
+      - ocis-config:/etc/ocis
+      - ocis-data:/var/lib/ocis
+    user: root
+    entrypoint:
+      - /bin/sh
+    command: ["-c", "ocis init || true; ocis server"]
+    environment:
+      OCIS_URL: https://${OCIS_DOMAIN} #
+      OCIS_LOG_LEVEL: ${OCIS_LOG_LEVEL}
+      PROXY_TLS: "false" # do not use SSL between Traefik and oCIS
+      OCIS_INSECURE: "${INSECURE}"
+      PROXY_ENABLE_BASIC_AUTH: "${PROXY_ENABLE_BASIC_AUTH}"
+      # admin user password
+      IDM_ADMIN_PASSWORD: "${ADMIN_PASSWORD}" # this overrides the admin password from the configuration file
+      # demo users
+      IDM_CREATE_DEMO_USERS: "${DEMO_USERS}"
+    networks:
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+    logging:
+      driver: "local"
