@@ -1,0 +1,26 @@
+version: "3.9"
+
+volumes:
+  portainer-data:
+    name: portainer-data
+
+networks:
+  traefik-proxy:
+    external: true
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    ports:
+      - 8000:8000
+      - 9443:9443
+    networks:
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
