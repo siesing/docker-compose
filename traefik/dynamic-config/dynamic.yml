@@ -1,0 +1,117 @@
+# Traefik dynamic configuration file (/etc/traefik/)
+# https://doc.traefik.io/traefik/getting-started/configuration-overview/#the-dynamic-configuration
+# and https://doc.traefik.io/traefik/reference/dynamic-configuration/file/
+
+http:
+  
+  ####################################################################################################################
+  ## Routers
+  ####################################################################################################################
+  routers:
+
+    traefik:
+      entryPoints: websecure
+      rule: Host (`traefik.example.com`) && (PathPrefix(`/api/`) || PathPrefix(`/dashboard/`))
+      middlewares:
+        - authentik
+      service: api@internal
+      tls:
+        domains:
+          - main: 'example.com'
+            sans:
+              - '*.example.com'
+
+    nextcloud:
+      entryPoints: websecure
+      rule: Host (`cloud.example.com`)
+      middlewares:
+         - securityHeaders
+         - calcard-regex
+         - request-ratelimit
+         - compress-responses
+      service: nextcloud-service
+      tls: {}
+
+    owncloud:
+      entryPoints: websecure
+      rule: Host (`owncloud.example.com`)
+      service: ocis-service
+      tls: {}
+    
+    seafile:
+      entryPoints: websecure
+      rule: Host (`seafile.example.com`)
+      middlewares:
+         - securityHeaders
+      service: seafile-service
+      tls: {}
+
+  ####################################################################################################################
+  ## Services
+  ####################################################################################################################
+  services:
+
+     nextcloud-service:
+       loadBalancer:
+         servers:
+           - url: http://nextcloud
+
+     ocis-service:
+       loadBalancer:
+         servers:
+           - url: http://ocis
+
+     seafile-service:
+       loadBalancer:
+         servers:
+           - url: http://seafile
+
+  ####################################################################################################################
+  ## Middlewares
+  ####################################################################################################################
+  middlewares:
+
+    securityHeaders:
+      headers:
+        customResponseHeaders:
+          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
+          server: ""
+          X-Forwarded-Proto: "https"
+        sslProxyHeaders:
+          X-Forwarded-Proto: https
+        referrerPolicy: "strict-origin-when-cross-origin"
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        contentTypeNosniff: true
+        browserXssFilter: true
+        sslRedirect: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsSeconds: 63072000
+        stsPreload: true
+
+    ## Basic Authentication
+    auth:
+      basicAuth:
+        users:
+          - 'admin:db1530e1ea43af094d3d75b8dbaf19a4a182a318' # admin / my-secret-password
+
+    request-ratelimit:
+      rateLimit:
+        average: 50
+        burst: 25
+    
+    compress-responses:
+      compress: {}
+
+    calcard-regex:
+      replacepathregex:
+        regex: '^/.well-known/ca(l|rd)dav'
+        replacement: '/remote.php/dav/'
+
+tls:
+  certificates:
+    - certFile: /etc/certificates/example.com.cert
+      keyFile: /etc/certificates/example.com.key
