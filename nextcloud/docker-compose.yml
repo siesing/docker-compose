@@ -41,15 +41,15 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_HOST=${MYSQL_HOST}
       - REDIS_HOST=${REDIS_HOST}
-      # Keep these variables below if you wish to be able to send emails.
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_SECURE=${SMTP_SECURE}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_AUTHTYPE=${SMTP_AUTHTYPE}
-      - SMTP_NAME=${SMTP_NAME}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-      - MAIL_DOMAIN=${MAIL_DOMAIN}
+      # Uncomment these variables below if you wish to be able to send emails.
+      # - SMTP_HOST=${SMTP_HOST}
+      # - SMTP_SECURE=${SMTP_SECURE}
+      # - SMTP_PORT=${SMTP_PORT}
+      # - SMTP_AUTHTYPE=${SMTP_AUTHTYPE}
+      # - SMTP_NAME=${SMTP_NAME}
+      # - SMTP_PASSWORD=${SMTP_PASSWORD}
+      # - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      # - MAIL_DOMAIN=${MAIL_DOMAIN}
     networks:
       - traefik-proxy
       - nc-backend
