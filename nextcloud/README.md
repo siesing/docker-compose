@@ -1,8 +1,12 @@
 # Nextcloud
 
-Ensure that the Docker network "traefik-proxy" has been created beforehand.
+## Prerequisites
 
-## Once the installation is completed
+Ensure that the Docker network `traefik-proxy` has been created beforehand.
+
+## Post-installation
+
+Once the installation is completed perform the following steps.
 
 ### Activate Cron Job
 
@@ -38,7 +42,7 @@ docker exec -u www-data <nextcloud-container-name> php occ config:system:set def
 docker exec -u www-data <nextcloud-container-name> php occ config:system:set default_phone_region --type string --value="SE"
 ```
 
-Find your country specific value here. [View values here](https://en.wikipedia.org/wiki/SO_3166-1_alpha-2#Officially_assigned_code_elements)
+Find your country specific value here. [View values here](https://en.wikipedia.org/wiki/SO_3166-1_alpha-2#Officially_assigned_code_elements).
 
 ### Prettify URLs
 
