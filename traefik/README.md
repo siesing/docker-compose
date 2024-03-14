@@ -20,3 +20,7 @@ Make sure to create the following directory on the host system in advance for th
 ```shell
 /etc/certificates/
 ```
+
+## Post-installation
+
+Copy the files `traefik.yml` and `dynamic.yml` files to the `/etc/traefik/` on the host system. Alternatively create new files and copy and paste the content of the files.
