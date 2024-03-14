@@ -1,10 +1,12 @@
 # Seafile
 
-Ensure that the Docker network "traefik-proxy" has been created beforehand.
+## Prerequisites
 
-## Once the installation is completed
+Ensure that the Docker network `traefik-proxy` has been created beforehand.
 
-#### Add settings to /opt/seafile/conf/seahub_settings.py
+## Post-installation
+
+#### Add these settings to /opt/seafile/conf/seahub_settings.py
 
 Change the specific domain values to reflect your environment. 
 
