@@ -1,2 +1,2 @@
 # docker-compose
-Voilà! My personal of docker-compose templates and configurations awaits you, fresh out of the digital oven.
+Voilà! My personal collection of docker-compose templates and boilerplate configurations awaits you, fresh out of the digital oven.
